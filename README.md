@@ -202,6 +202,10 @@ See [`examples/`](examples/) for complete examples:
 - **[support_triage.py](examples/support_triage.py)** - Intent-based routing with Selector
 - **[code_review.py](examples/code_review.py)** - Multi-stage code analysis
 
+## Demo
+
+Full RAG application with web UI: **[eggai-clutch-demo](https://github.com/eggai-tech/eggai-clutch-demo)**
+
 ## License
 
 MIT
