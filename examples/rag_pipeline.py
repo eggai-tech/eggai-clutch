@@ -3,6 +3,7 @@ RAG Offline Pipeline Example - Typed API
 Processing documents for a RAG system. Only the summarization step needs AI.
 5 nodes, 1 LLM call.
 """
+
 import asyncio
 import hashlib
 
@@ -53,7 +54,7 @@ async def loader(doc: Document) -> Document:
 async def chunker(doc: Document) -> Document:
     """Split into chunks. Pure code."""
     chunk_size = 200
-    doc.chunks = [doc.content[i:i+chunk_size] for i in range(0, len(doc.content), chunk_size)]
+    doc.chunks = [doc.content[i : i + chunk_size] for i in range(0, len(doc.content), chunk_size)]
     print(f"    [Chunker] Created {len(doc.chunks)} chunks")
     return doc
 

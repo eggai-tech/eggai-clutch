@@ -13,6 +13,7 @@ class TestAgentNode:
     def test_creation(self):
         async def handler(data):
             return data
+
         node = AgentNode("test", handler)
         assert node.name == "test"
         assert node.handler is handler
@@ -21,18 +22,21 @@ class TestAgentNode:
     def test_with_edges(self):
         async def handler(data):
             return data
+
         node = AgentNode("test", handler, edges=["a", "b"])
         assert node.edges == ["a", "b"]
 
     def test_extracts_input_type(self):
         async def typed_handler(data: InputModel):
             return data
+
         node = AgentNode("test", typed_handler)
         assert node.input_type is InputModel
 
     def test_no_type_hint(self):
         async def untyped_handler(data):
             return data
+
         node = AgentNode("test", untyped_handler)
         assert node.input_type is None
 

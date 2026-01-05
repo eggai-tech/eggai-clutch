@@ -56,6 +56,7 @@ class TestUnifiedAPI:
         test_id = uuid.uuid4().hex[:8]
 
         async with Clutch(f"ctx-{test_id}", transport=transport) as clutch:
+
             @clutch.agent()
             async def echo(data):
                 return data + "_done"
