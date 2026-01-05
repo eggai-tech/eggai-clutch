@@ -1,0 +1,22 @@
+{
+  "$schema": "https://context7.com/schema/context7.json",
+  "projectTitle": "eggai-clutch",
+  "description": "Multi-strategy agent orchestration library for Python. Define pipelines with decorators, control flow with exceptions, run locally or distributed.",
+  "folders": [
+    "eggai_clutch",
+    "examples"
+  ],
+  "excludeFolders": [
+    "tests",
+    ".git",
+    "__pycache__"
+  ],
+  "rules": [
+    "Always use async functions for agents",
+    "Use @clutch.agent() decorator to register agents",
+    "Use Terminate(result) to stop pipeline and return",
+    "Use Handover(agent_name, data) to transfer control",
+    "Use Pydantic models for type-safe data flow",
+    "Choose strategy based on use case: SEQUENTIAL for pipelines, SELECTOR for routing, GRAPH for workflows, ROUND_ROBIN for iteration"
+  ]
+}
