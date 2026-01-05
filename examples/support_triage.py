@@ -2,6 +2,7 @@
 Customer Support Triage Example - Typed API
 Uses Selector strategy for dynamic routing based on intent classification.
 """
+
 import asyncio
 
 from pydantic import BaseModel
@@ -115,7 +116,7 @@ async def main():
     ]
 
     for query, user_id in test_cases:
-        print(f"\n[Query] \"{query}\"")
+        print(f'\n[Query] "{query}"')
         result = await clutch.run(SupportTicket(query=query, user_id=user_id))
         print(f"  Category: {result['category']}")
         print(f"  Response: {result['response'][:60]}...")

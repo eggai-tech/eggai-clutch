@@ -2,6 +2,7 @@
 Code Review Pipeline Example - Typed API
 4 nodes, 1 LLM call. Static analysis happens in code, AI provides final review.
 """
+
 import ast
 import asyncio
 
@@ -14,7 +15,7 @@ async def mock_llm(prompt: str) -> str:
     return "[AI Review] Code looks clean. Consider adding type hints for better maintainability."
 
 
-SAMPLE_CODE = '''
+SAMPLE_CODE = """
 def calculate_total(items):
     total = 0
     for item in items:
@@ -26,7 +27,7 @@ def process_order(order):
         order.status = "processing"
         send_notification(order.customer_email)
     return order
-'''
+"""
 
 
 class CodeReview(BaseModel):
@@ -68,7 +69,7 @@ async def linter(review: CodeReview) -> CodeReview:
     lines = review.code.split("\n")
     for i, line in enumerate(lines):
         if len(line) > 100:
-            issues.append(f"Line {i+1}: too long ({len(line)} chars)")
+            issues.append(f"Line {i + 1}: too long ({len(line)} chars)")
     review.lint_issues = issues
     print(f"    [Linter] Found {len(issues)} lint issues")
     return review

@@ -153,6 +153,7 @@ class Clutch:
             self._agents[name] = AgentNode(name, fn, edges)
             self._agent_order.append(name)
             return fn
+
         return decorator
 
     def selector(self, fn: Callable[[Any], Awaitable[str | None]] | None = None):
@@ -409,11 +410,13 @@ class Clutch:
         self._pending_requests[clutch_id] = future
 
         request_channel = Channel(f"clutch-{self.name}", transport=self.transport)
-        await request_channel.publish({
-            "_clutch_request": True,
-            "clutch_id": clutch_id,
-            "input": _serialize(input_data),
-        })
+        await request_channel.publish(
+            {
+                "_clutch_request": True,
+                "clutch_id": clutch_id,
+                "input": _serialize(input_data),
+            }
+        )
 
         return ClutchTask(self, clutch_id, future)
 
@@ -513,14 +516,16 @@ class Clutch:
             "step_index": 0,
         }
 
-        await self._step_channels[first_step].publish({
-            "_clutch_step": True,
-            "clutch_id": clutch_id,
-            "data": input_data,
-            "state": state,
-            "metadata": {},
-            "original_input": input_data,
-        })
+        await self._step_channels[first_step].publish(
+            {
+                "_clutch_step": True,
+                "clutch_id": clutch_id,
+                "data": input_data,
+                "state": state,
+                "metadata": {},
+                "original_input": input_data,
+            }
+        )
 
     async def _get_first_step(self, data: Any) -> str | None:
         order = self._get_order()
@@ -572,14 +577,16 @@ class Clutch:
             next_step = await self._get_next_step(step_name, ctx, state)
 
             if next_step and next_step in self._step_channels:
-                await self._step_channels[next_step].publish({
-                    "_clutch_step": True,
-                    "clutch_id": clutch_id,
-                    "data": ctx.data,
-                    "state": state,
-                    "metadata": ctx.metadata,
-                    "original_input": original_input,
-                })
+                await self._step_channels[next_step].publish(
+                    {
+                        "_clutch_step": True,
+                        "clutch_id": clutch_id,
+                        "data": ctx.data,
+                        "state": state,
+                        "metadata": ctx.metadata,
+                        "original_input": original_input,
+                    }
+                )
             else:
                 await self._send_response(clutch_id, original_input, ctx.data)
 
@@ -592,29 +599,32 @@ class Clutch:
                 ctx = ctx.next(step_name, _serialize(h.data))
             state["turn"] = ctx.state.turn
             state["history"] = [
-                hh.model_dump() if hasattr(hh, "model_dump") else hh
-                for hh in ctx.state.history
+                hh.model_dump() if hasattr(hh, "model_dump") else hh for hh in ctx.state.history
             ]
 
             if h.agent in self._step_channels:
-                await self._step_channels[h.agent].publish({
-                    "_clutch_step": True,
-                    "clutch_id": clutch_id,
-                    "data": ctx.data,
-                    "state": state,
-                    "metadata": ctx.metadata,
-                    "original_input": original_input,
-                })
+                await self._step_channels[h.agent].publish(
+                    {
+                        "_clutch_step": True,
+                        "clutch_id": clutch_id,
+                        "data": ctx.data,
+                        "state": state,
+                        "metadata": ctx.metadata,
+                        "original_input": original_input,
+                    }
+                )
             else:
                 await self._send_response(clutch_id, original_input, ctx.data)
 
         except Exception as e:
-            await self._replies_channel.publish({
-                "_clutch_response": True,
-                "_clutch_error": True,
-                "clutch_id": clutch_id,
-                "error": str(e),
-            })
+            await self._replies_channel.publish(
+                {
+                    "_clutch_response": True,
+                    "_clutch_error": True,
+                    "clutch_id": clutch_id,
+                    "error": str(e),
+                }
+            )
 
     async def _get_next_step(
         self, current_step: str, ctx: ClutchContext, state: dict
@@ -689,11 +699,13 @@ class Clutch:
             await self._on_response({"clutch_id": clutch_id, "input": original_input}, response)
 
         if self._broadcast_channel:
-            await self._broadcast_channel.publish({
-                "clutch_id": clutch_id,
-                "request": original_input,
-                "result": result,
-            })
+            await self._broadcast_channel.publish(
+                {
+                    "clutch_id": clutch_id,
+                    "request": original_input,
+                    "result": result,
+                }
+            )
 
         await self._replies_channel.publish(response)
 
@@ -717,6 +729,7 @@ class Clutch:
 
         if transport_type == "KafkaTransport":
             from eggai import KafkaTransport
+
             return KafkaTransport(bootstrap_servers=self.transport._bootstrap_servers)
         else:
             return self.transport
