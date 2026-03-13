@@ -42,60 +42,60 @@ jobs:
             fi
           fi
 
-      - name: Create release branch
-        run: |
-          VERSION="${{ github.event.inputs.version }}"
-          git checkout -b release/v$VERSION
-
-      - name: Update version in pyproject.toml
-        run: |
-          VERSION="${{ github.event.inputs.version }}"
-          sed -i 's/^version = ".*"/version = "'$VERSION'"/' pyproject.toml
-
-      - name: Update CHANGELOG.md
-        if: steps.check.outputs.prerelease == 'false'
-        run: |
-          VERSION="${{ github.event.inputs.version }}"
-          DATE=$(date +%Y-%m-%d)
-          sed -i "s/## \[Unreleased\]/## [Unreleased]\n\n## [$VERSION] - $DATE/" CHANGELOG.md
-
-      - name: Commit changes
+      - name: Create release branch and commit
         run: |
           VERSION="${{ github.event.inputs.version }}"
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
+          git checkout -b release/v$VERSION
+
+          sed -i 's/^version = ".*"/version = "'$VERSION'"/' pyproject.toml
+
+          if [ "${{ steps.check.outputs.prerelease }}" = "false" ]; then
+            DATE=$(date +%Y-%m-%d)
+            sed -i "s/## \[Unreleased\]/## [Unreleased]\n\n## [$VERSION] - $DATE/" CHANGELOG.md
+          fi
+
           git add pyproject.toml CHANGELOG.md
           git commit -m "chore: release v$VERSION"
 
-      - name: Push branch
-        run: |
-          VERSION="${{ github.event.inputs.version }}"
-          git push origin release/v$VERSION
-
-      - name: Create Pull Request
+      - name: Push branch and create PR
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           VERSION="${{ github.event.inputs.version }}"
           PRERELEASE="${{ steps.check.outputs.prerelease }}"
+          BRANCH="release/v$VERSION"
+
+          git push origin "$BRANCH"
 
           if [ "$PRERELEASE" = "true" ]; then
-            gh pr create \
-              --title "chore: release v$VERSION" \
-              --body "Release candidate v$VERSION for testing.
+            cat > /tmp/pr-body.md << EOF
+          Release candidate v$VERSION for testing.
 
-          Install with: \`pip install eggai-clutch==$VERSION\`" \
+          Install with: \`pip install eggai-clutch==$VERSION\`
+          EOF
+
+            gh pr create \
+              --head "$BRANCH" \
+              --title "chore: release v$VERSION" \
+              --body-file /tmp/pr-body.md \
               --label "release" \
               --label "skip-changelog"
           else
             CHANGELOG=$(sed -n "/## \[$VERSION\]/,/## \[/p" CHANGELOG.md | sed '$d' | tail -n +2)
 
-            gh pr create \
-              --title "chore: release v$VERSION" \
-              --body "## Release v$VERSION
+            {
+              echo "## Release v$VERSION"
+              echo ""
+              printf '%s\n' "$CHANGELOG"
+            } > /tmp/pr-body.md
 
-          $CHANGELOG" \
+            gh pr create \
+              --head "$BRANCH" \
+              --title "chore: release v$VERSION" \
+              --body-file /tmp/pr-body.md \
               --label "release"
           fi
 
-          echo "Release PR created! Merge it to trigger the release."
+          echo "Release PR created! Merge it, then run 'Tag and Publish Release' workflow."
