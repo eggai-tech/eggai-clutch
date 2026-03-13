@@ -41,23 +41,41 @@ jobs:
   changelog:
     runs-on: ubuntu-latest
     name: Changelog check
-    if: github.event_name == 'pull_request' && !contains(github.event.pull_request.labels.*.name, 'skip-changelog')
+    if: github.event_name == 'pull_request' && github.actor != 'dependabot[bot]'
 
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
+      - name: Check if changelog is required
+        id: needs-changelog
+        run: |
+          # Changelog is required if the PR touches code or test files.
+          # PRs that only touch .github/, examples/, docs, or root config files
+          # are auto-skipped — no label needed.
+          CHANGED=$(git diff origin/main --name-only)
+          CODE_CHANGED=$(echo "$CHANGED" | grep -E "^(eggai_clutch/|tests/|pyproject\.toml)" | grep -v "^CHANGELOG.md" || true)
+
+          if [ -z "$CODE_CHANGED" ]; then
+            echo "required=false" >> $GITHUB_OUTPUT
+            echo "No code changes — changelog not required."
+          else
+            echo "required=true" >> $GITHUB_OUTPUT
+            echo "Code changed — changelog required:"
+            echo "$CODE_CHANGED"
+          fi
+
       - name: Check CHANGELOG.md updated
+        if: steps.needs-changelog.outputs.required == 'true'
         run: |
           if ! git diff origin/main --name-only | grep -q "CHANGELOG.md"; then
             echo "::error::CHANGELOG.md must be updated. Add your changes under [Unreleased] section."
-            echo ""
-            echo "If this PR doesn't need a changelog entry (docs, CI, etc.), add the 'skip-changelog' label."
             exit 1
           fi
 
       - name: Check changelog content
+        if: steps.needs-changelog.outputs.required == 'true'
         env:
           IS_RELEASE: ${{ contains(github.event.pull_request.labels.*.name, 'release') }}
         run: |
@@ -68,8 +86,13 @@ jobs:
             fi
             echo "Release changelog check passed!"
           else
-            if ! grep -A 10 "## \[Unreleased\]" CHANGELOG.md | grep -qE "^### "; then
-              echo "::error::Add your changes under [Unreleased] section in CHANGELOG.md"
+            UNRELEASED=$(sed -n '/## \[Unreleased\]/,/## \[/p' CHANGELOG.md | sed '1d;$d')
+            if ! echo "$UNRELEASED" | grep -qE "^### "; then
+              echo "::error::Add a category header (### Added, ### Fixed, etc.) under [Unreleased] in CHANGELOG.md"
+              exit 1
+            fi
+            if ! echo "$UNRELEASED" | grep -qE "^- "; then
+              echo "::error::Add at least one entry (- description) under [Unreleased] in CHANGELOG.md"
               exit 1
             fi
             echo "Changelog check passed!"
