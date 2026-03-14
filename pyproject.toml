@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "eggai-clutch"
-version = "0.2.0"
+version = "0.2.1"
 description = "Multi-agent orchestration for EggAI"
 license = "MIT"
 requires-python = ">=3.10"
