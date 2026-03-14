@@ -23,23 +23,26 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Cache pip
+      - name: Install uv
+        run: pip install uv
+
+      - name: Cache uv
         uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
         with:
-          path: ~/.cache/pip
-          key: pip-${{ runner.os }}-py3.11-${{ hashFiles('pyproject.toml') }}
+          path: ~/.cache/uv
+          key: uv-${{ runner.os }}-py3.11-${{ hashFiles('uv.lock') }}
           restore-keys: |
-            pip-${{ runner.os }}-py3.11-
-            pip-${{ runner.os }}-
+            uv-${{ runner.os }}-py3.11-
+            uv-${{ runner.os }}-
 
       - name: Install dependencies
-        run: pip install -e ".[dev]"
+        run: uv sync --frozen --extra dev
 
       - name: Run ruff linter
-        run: ruff check .
+        run: uv run ruff check .
 
       - name: Check code formatting
-        run: ruff format --check .
+        run: uv run ruff format --check .
 
   changelog:
     runs-on: ubuntu-latest
@@ -132,20 +135,23 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
 
-      - name: Cache pip
+      - name: Install uv
+        run: pip install uv
+
+      - name: Cache uv
         uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
         with:
-          path: ~/.cache/pip
-          key: pip-${{ runner.os }}-py${{ matrix.python-version }}-${{ hashFiles('pyproject.toml') }}
+          path: ~/.cache/uv
+          key: uv-${{ runner.os }}-py${{ matrix.python-version }}-${{ hashFiles('uv.lock') }}
           restore-keys: |
-            pip-${{ runner.os }}-py${{ matrix.python-version }}-
-            pip-${{ runner.os }}-
+            uv-${{ runner.os }}-py${{ matrix.python-version }}-
+            uv-${{ runner.os }}-
 
       - name: Install dependencies
-        run: pip install -e ".[dev]"
+        run: uv sync --frozen --extra dev
 
       - name: Run tests with coverage
-        run: pytest -v --cov=eggai_clutch --cov-report=xml --cov-report=term-missing
+        run: uv run pytest -v --cov=eggai_clutch --cov-report=xml --cov-report=term-missing
 
       - name: Upload coverage to Codecov
         if: matrix.python-version == '3.11'
