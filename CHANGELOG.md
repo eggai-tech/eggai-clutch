@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+- Require `eggai>=0.3.4`
+
+### Security
+- Regenerate `uv.lock`: eggai 0.3.4, faststream 0.7.5, fastmcp 3.4.7, mcp 1.29.1,
+  cryptography 50.0.1, starlette 1.6.0, authlib 1.8.0, pyjwt 2.13.0, urllib3 2.7.0,
+  pyasn1 0.6.4. Clears all open Dependabot alerts.
+
 ## [0.2.1] - 2026-03-14
 
 ### Changed
