@@ -850,7 +850,7 @@ mcp = [
 
 [package.metadata]
 requires-dist = [
-    { name = "eggai", specifier = ">=0.5.0" },
+    { name = "eggai", specifier = ">=0.3.4" },
     { name = "eggai", extras = ["a2a"], marker = "extra == 'a2a'" },
     { name = "eggai", extras = ["cli"], marker = "extra == 'cli'" },
     { name = "eggai", extras = ["mcp"], marker = "extra == 'mcp'" },

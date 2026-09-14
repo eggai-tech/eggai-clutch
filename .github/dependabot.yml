@@ -34,6 +34,9 @@ updates:
     open-pull-requests-limit: 5
     labels:
       - dependencies
-      - ci
     commit-message:
       prefix: "chore(ci)"
+    groups:
+      github-actions:
+        patterns:
+          - "*"

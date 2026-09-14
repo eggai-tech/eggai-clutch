@@ -56,6 +56,9 @@ jobs:
             exit 1
           fi
 
+      - name: Install uv
+        run: pip install uv
+
       - name: Create release branch and update version
         run: |
           git config user.name "eggai-release-bot[bot]"
@@ -75,7 +78,8 @@ jobs:
             sed -i "s/## \[Unreleased\]/## [Unreleased]\n\n## [$VERSION] - $DATE/" CHANGELOG.md
           fi
 
-          git add pyproject.toml CHANGELOG.md
+          uv lock
+          git add pyproject.toml CHANGELOG.md uv.lock
           git commit -m "chore: release v$VERSION"
 
       - name: Extract changelog

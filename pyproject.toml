@@ -23,7 +23,7 @@ classifiers = [
 ]
 dependencies = [
     "pydantic>=2.0",
-    "eggai>=0.5.0",
+    "eggai>=0.3.4",
 ]
 
 [project.optional-dependencies]
