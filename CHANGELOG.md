@@ -8,7 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Changed
-- Regenerate `uv.lock`: eggai 0.5.0, mcp 1.30.0, pyjwt 2.14.0, uvicorn 0.53.0, ruff 0.16.7
+- Regenerate `uv.lock`: eggai 0.8.0, mcp 2.3.0, pyjwt 2.15.1, urllib3 2.8.0, uvicorn 0.54.0, ruff 0.17.1 (faststream held at 0.7.5)
 - CI: bump `actions/checkout` to v7.0.1 and `actions/setup-python` to v7.0.0
 - CI: verify `uv.lock` is current on every run; release workflow re-locks after bumping the version
 - Dependabot: group GitHub Actions bumps into one PR
